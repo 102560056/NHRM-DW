@@ -66,6 +66,7 @@ CREATE TABLE DWMEASUREMENT
     AnswerText NVARCHAR(255),
     UpperLimit INT, 
     LowerLimit INT,
+    Frequency INT,
     MeasurementName NVARCHAR(50)
 );
 
