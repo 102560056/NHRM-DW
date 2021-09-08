@@ -1,0 +1,140 @@
+-- 102560056 
+-- SamualBanfield
+
+-- 08/09/2021
+/*----------------- ErrorEvent -----------------*/
+IF OBJECT_ID('ERROREVENT') IS NOT NULL DROP TABLE ERROREVENT;
+CREATE TABLE ERROREVENT
+(
+    ERRORID INT IDENTITY(1,1) PRIMARY KEY,
+    SOURCE_ID NVARCHAR(50) NOT NULL,
+    SOURCE_TABLE NVARCHAR(50) NOT NULL,
+    SOURCE_DB NVARCHAR(50) NOT NULL,
+    FILTERID INT NOT NULL,
+    [DATETIME] DATETIME,
+    ACTION NVARCHAR(50) NOT NULL,
+    CONSTRAINT ERROREVENTACTION CHECK (ACTION IN ('SKIP','MODIFY'))
+);
+
+
+
+/*----------------- StaffTable -----------------*/
+IF OBJECT_ID('DWSTAFF') IS NOT NULL DROP TABLE DWSTAFF;
+CREATE TABLE DWSTAFF
+(
+    DWStaffID  INT IDENTITY(1,1) PRIMARY KEY,
+    DWSourceDB NVARCHAR(50) NOT NULL,
+    DWSourceID INT NOT NULL,
+    DWSourceTable NVARCHAR(50) NOT NULL, 
+    StaffType NVARCHAR(50) NOT NULL
+);
+
+
+/*----------------- PatientTable -----------------*/
+IF OBJECT_ID('DWPATIENT') IS NOT NULL DROP TABLE DWPATIENT;
+CREATE TABLE DWPATIENT
+(
+    DWPatientID INT IDENTITY(1,1) PRIMARY KEY,
+    DWSourceDB NVARCHAR(50) NOT NULL,
+    DWSourceID INT NOT NULL,
+    DWSourceTable NVARCHAR(50) NOT NULL, 
+    Gender NVARCHAR(50),
+    YearOfBirth	INT,
+    PostCode NVARCHAR(4),
+    CategoryName NVARCHAR(50),
+    CountryOfBirth NVARCHAR(50),
+    Diagnosis NVARCHAR(255),
+    PreferredLanguage NVARCHAR(50), 
+    LivesAlone BIT,
+    Active BIT
+);
+
+
+/*----------------- MeasurementTable -----------------*/
+IF OBJECT_ID('DWMEASUREMENT') IS NOT NULL DROP TABLE DWMEASUREMENT;
+CREATE TABLE DWMEASUREMENT
+(
+    DWMeasurementID INT IDENTITY(1,1) PRIMARY KEY,
+    DWSourceDB NVARCHAR(50) NOT NULL,
+    DWSourceID INT,
+    DWSourceTable NVARCHAR(50) NOT NULL, 
+    [Value] INT,
+    YearOfBirth	INT,
+    PostCode NVARCHAR(4),
+    CategoryName NVARCHAR(50),
+    Question NVARCHAR(50),
+    AnswerText NVARCHAR(255),
+    UpperLimit INT, 
+    LowerLimit INT,
+    MeasurementName NVARCHAR(50)
+);
+
+
+/*----------------- RecordTable -----------------*/
+IF OBJECT_ID('DWRECORD') IS NOT NULL DROP TABLE DWRECORD;
+CREATE TABLE DWRECORD
+(
+    DWRecordID INT IDENTITY(1,1) PRIMARY KEY,
+    DWSourceDB NVARCHAR(50) NOT NULL,
+    DWSourceID INT,
+    DWSourceTable NVARCHAR(50) NOT NULL, 
+    Category NVARCHAR(50),
+    RecordType NVARCHAR(50) 
+);
+
+
+/*----------------- DateTimeTable -----------------*/
+IF OBJECT_ID('DWDateTime') IS NOT NULL DROP TABLE DWDateTime;
+CREATE TABLE DWDateTime
+(
+    [DateTime] DATETIME PRIMARY KEY
+);
+
+
+/*----------------- DWIntervention -----------------*/
+IF OBJECT_ID('DWINTERVENTION') IS NOT NULL DROP TABLE DWINTERVENTION;
+CREATE TABLE DWINTERVENTION
+(
+    DWInterventionID INT IDENTITY(1,1) PRIMARY KEY,
+    DWDateTimeID DATETIME NOT NULL,
+    DWRecordID INT NOT NULL,
+    DWPatientID INT NOT NULL, 
+    Notes NVARCHAR(50) NULL,
+
+    FOREIGN KEY (DWDateTimeID) REFERENCES DWDATETIME([DateTime]),
+    FOREIGN KEY (DWRecordID) REFERENCES DWRECORD(DWRecordID),
+    FOREIGN KEY (DWPatientID) REFERENCES DWPATIENT(DWPatientID)
+);
+
+
+/*----------------- DWTreating -----------------*/
+IF OBJECT_ID('DWTREATING') IS NOT NULL DROP TABLE DWTREATING;
+CREATE TABLE DWTREATING
+(
+    DWTreatingID INT IDENTITY(1,1) PRIMARY KEY,
+    StartDate DATETIME NOT NULL,
+    EndDate DATETIME NOT NULL,
+    DWStaffID INT NOT NULL, 
+    DWPatientID INT NOT NULL, 
+
+    FOREIGN KEY (StartDate) REFERENCES DWDATETIME([DateTime]),
+    FOREIGN KEY (EndDate) REFERENCES DWDATETIME([DateTime]),
+    FOREIGN KEY (DWStaffID) REFERENCES DWSTAFF(DWStaffID),
+    FOREIGN KEY (DWPatientID) REFERENCES DWPATIENT(DWPatientID)
+);
+
+
+/*----------------- DWDataPoint -----------------*/
+IF OBJECT_ID('DWDATAPOINT') IS NOT NULL DROP TABLE DWDATAPOINT;
+CREATE TABLE DWDATAPOINT
+(
+    DWDataPointID INT IDENTITY(1,1) PRIMARY KEY,
+    DWDateTimeID DATETIME NOT NULL,
+    DWMeasurementID INT NOT NULL, 
+    DWPatientID INT NOT NULL, 
+
+    FOREIGN KEY (DWDateTimeID) REFERENCES DWDATETIME([DateTime]),
+    FOREIGN KEY (DWDateTimeID) REFERENCES DWDATETIME([DateTime]),
+    FOREIGN KEY (DWMeasurementID) REFERENCES DWMEASUREMENT(DWMeasurementID),
+    FOREIGN KEY (DWPatientID) REFERENCES DWPATIENT(DWPatientID)
+);
